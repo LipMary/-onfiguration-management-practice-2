@@ -1,4 +1,0 @@
-package_name = "express"
-repo_url = "https://npmjs.org"
-test_mode = false
-version = "4.18.2"
