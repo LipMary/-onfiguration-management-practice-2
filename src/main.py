@@ -1,5 +1,6 @@
 import os
 import sys
+from fetcher import fetch_npm_dependencies
 
 EXPECTED_ARGS_COUNT = 2
 KEY_VALUE_PARTS = 2
@@ -58,19 +59,30 @@ def validate_config(config):
         raise ValueError("Версия пакета должна быть непустой строкой")
 
 
+def print_direct_dependencies(deps, package_name, version):
+    """Выводит на экран список прямых зависимостей пакета."""
+    print(f"\nПрямые зависимости для {package_name} ({version}):")
+    if not deps:
+        print("  Зависимости отсутствуют.")
+        return
+    for dep_name, dep_ver in deps.items():
+        print(f"  - {dep_name}: {dep_ver}")
+
+
 def main():
-    """Точка входа в приложение для Этапа 1."""
+    """Точка входа в приложение для Этапа 2."""
     if len(sys.argv) != EXPECTED_ARGS_COUNT:
         print("Использование: python3 src/main.py <путь_к_config.toml>")
         sys.exit(1)
 
     try:
         config = load_config(sys.argv[1])
-        print("Настроенные параметры конфигурации:")
-        for key, value in config.items():
-            print(f"  {key} = {value}")
-    except (FileNotFoundError, ValueError) as err:
-        print(f"Ошибка конфигурации: {err}")
+        deps = fetch_npm_dependencies(
+            config["repo_url"], config["package_name"], config["version"]
+        )
+        print_direct_dependencies(deps, config["package_name"], config["version"])
+    except (FileNotFoundError, ValueError, ConnectionError) as err:
+        print(f"Ошибка выполнения: {err}")
         sys.exit(1)
 
 
